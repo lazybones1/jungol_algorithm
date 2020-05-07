@@ -3,74 +3,44 @@
 #include <vector>
 using namespace std;
 
-int main() {
-	int x_size, y_size, p_num, miss_num;
-	cin >> x_size >> y_size >> p_num >> miss_num;
-	vector<pair<int, int>> miss;
-	int max_x, max_y;
+int find(vector<int> miss, int size) {
+	int cover = -1;
+	int paper = 0;
+	for (int pos = 0; pos < miss.size(); pos++) {
+		if (cover == -1) {
+			cover = miss[pos];
+			paper++;
+		}
+		else if (cover + size <= miss[pos]) {
+			cover = miss[pos];
+			paper++;
+		}
+	}
+	return paper;
+}
 
-	for (int i = 0; i < miss_num; i++) {
+int main() {
+	int row, col, pnum, missnum;
+	cin >> row >> col >> pnum >> missnum;
+	vector<int> miss;
+	int min_size = 0;
+	for (int i = 0; i < missnum; i++) {
 		int x, y;
 		cin >> x >> y;
-		max_x = max(max_x, x);
-		max_y = max(max_y, y);
-		miss.push_back(make_pair(x, y));
+		min_size = max(min_size, x);
+		miss.push_back(y);
 	}
-
-	int start = min(max_x, max_y);
-	int end = max(max_x, max_y);
-	int answer = 0;
-	bool ispass = false;
-
-
-	while (start<=end) {
-		int cover = 0;
+	sort(miss.begin(), miss.end());
+	int start = min_size, end = 1000000;
+	while (start <= end) {
 		int middle = (start + end) / 2;
-		int paper = p_num;
-		if (max_x >= max_y) {
-			int tmp = (ispass) ? 1 : 2;
-			for (int i = 0; i < miss.size(); i++) {
-				if (miss[i].first > cover && paper !=0) {
-					cover = miss[i].first + middle-1;
-					paper--;
-				}
-				if (cover >= max_x) {
-					ispass = true;
-					answer = middle;
-					end = middle - 1;
-					break;
-				}
-				if (i == miss.size() - 1) {
-					ispass = false;
-					start = middle + 1;
-				}
-			}
-			if (tmp == 1 && !ispass) {
-				break;
-			}
+		if (find(miss, middle) <= pnum) {
+			end = middle - 1;
 		}
-		else if (max_x < max_y) {
-			int tmp = (ispass) ? 1 : 2;
-			for (int i = 0; i < miss.size(); i++) {
-				if (miss[i].second > cover && paper != 0) {
-					cover = miss[i].second + middle -1;
-					paper--;
-				}
-				if (cover >= max_y) {
-					ispass = true;
-					answer = middle;
-					end = middle - 1;
-					break;
-				}
-				if (i == miss.size() - 1) {
-					ispass = false;
-					start = middle + 1;
-				}
-			}
-			if (tmp == 1 && !ispass) {
-				break;
-			}
+		else {
+			start = middle + 1;
 		}
 	}
-	cout << answer;
+	cout<<start;
+	return 0;
 }
